@@ -1,0 +1,18 @@
+{
+  "type": "module",
+  "bin": "./index.js",
+  "name": "base64",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --test",
+    "start": "node index"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">= 18"
+  }
+}
