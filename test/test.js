@@ -25,6 +25,12 @@ describe('base64 encoder', () => {
   [
     ['', ''],
     ['abc', 'YWJj'],
+    ['f', 'Zg=='],
+    ['fo', 'Zm8='],
+    ['foo', 'Zm9v'],
+    ['foob', 'Zm9vYg=='],
+    ['fooba', 'Zm9vYmE='],
+    ['foobar', 'Zm9vYmFy'],
   ].forEach(([input, output]) => {
     it(`encodes ${input} to ${output}`, async () => {
       await new Promise((resolve, reject) => {
