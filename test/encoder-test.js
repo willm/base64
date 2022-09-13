@@ -1,43 +1,16 @@
 import {describe, it} from 'node:test';
 import * as assert from 'assert';
-import {Encoder, toBits, toBase10} from '../lib/encoder.js';
-import {Readable} from 'stream';
+import {Encoder} from '../lib/encoder.js';
+import {toBits, toBase10} from '../lib/binary.js';
 import {createReadStream, readFileSync} from 'fs';
 import * as path from 'path';
 import {fileURLToPath} from 'url'
-
+import {testCases} from './test-cases.js';
+import {UTF8StringStream} from './string-stream.js';
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-class UTF8StringStream extends Readable {
-  #wasRead;
-  #value;
-  constructor(value) {
-    super();
-    this.#wasRead = false;
-    this.#value = value;
-  }
-
-  _read() {
-    if (!this.#wasRead) {
-      this.push(Buffer.from(this.#value).toString('utf8'));
-      this.push(null);
-      this.#wasRead = true;
-    }
-  }
-}
-
-const testCases = [
-  ['', ''],
-  ['abc', 'YWJj'],
-  ['f', 'Zg=='],
-  ['fo', 'Zm8='],
-  ['foo', 'Zm9v'],
-  ['foob', 'Zm9vYg=='],
-  ['fooba', 'Zm9vYmE='],
-  ['foobar', 'Zm9vYmFy'],
-];
 
 describe('base64 encoder', () => {
   testCases.forEach(([input, output]) => {
@@ -86,7 +59,7 @@ describe('base64 encoder', () => {
   });
 });
 
-describe('base 10 to bits', () => {
+describe('toBits()', () => {
   [
     [0, [0, 0, 0, 0, 0, 0, 0, 0]],
     [1, [0, 0, 0, 0, 0, 0, 0, 1]],
@@ -101,7 +74,7 @@ describe('base 10 to bits', () => {
   });
 });
 
-describe('bits to base 10', () => {
+describe('toBase10()', () => {
   [
     [[0, 0, 0, 0, 0, 0, 0, 0], 0],
     [[0, 0, 0, 0, 0, 0, 0, 1], 1],

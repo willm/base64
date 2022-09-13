@@ -14,5 +14,6 @@
   "license": "ISC",
   "engines": {
     "node": ">= 18"
-  }
+  },
+  "devDependencies": {}
 }
