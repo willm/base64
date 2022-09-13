@@ -2,6 +2,13 @@ import {describe, it} from 'node:test';
 import * as assert from 'assert';
 import {Encoder, toBits, toBase10} from '../lib/encoder.js';
 import {Readable} from 'stream';
+import {createReadStream, readFileSync} from 'fs';
+import * as path from 'path';
+import {fileURLToPath} from 'url'
+
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 class UTF8StringStream extends Readable {
   #wasRead;
@@ -35,7 +42,7 @@ const testCases = [
 describe('base64 encoder', () => {
   testCases.forEach(([input, output]) => {
     it(`encodes ${input} to ${output}`, async () => {
-      await new Promise((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         const encoder = new Encoder();
         let base64 = '';
         encoder.on('data', data => base64 += data);
@@ -50,10 +57,34 @@ describe('base64 encoder', () => {
         new UTF8StringStream(input).pipe(encoder);
       });
     });
+  });
 
+  it('encodes larger binary data correctly', async () => {
+    return new Promise((resolve, reject) => {
+      const testDataPath = path.join(__dirname, 'data');
+      const input = path.join(testDataPath, 'when-im-sixty-four.jpg');
+      const encoder = new Encoder();
+      const expected = readFileSync(input, 'base64');
+      let base64 = '';
+      encoder.on('data', data => base64 += data);
+      encoder.on('end', () => {
+        assert.equal(base64.length, expected.length);
+        assert.equal(
+          base64,
+          expected
+        );
+        resolve();
+      });
+      encoder.on('error', (err) => {
+        reject(err);
+      });
+
+      createReadStream(
+        input,
+      ).pipe(encoder);
+    });
   });
 });
-
 
 describe('base 10 to bits', () => {
   [
@@ -61,7 +92,8 @@ describe('base 10 to bits', () => {
     [1, [0, 0, 0, 0, 0, 0, 0, 1]],
     [2, [0, 0, 0, 0, 0, 0, 1, 0]],
     [64, [0, 1, 0, 0, 0, 0, 0,0]],
-    [97, [0, 1, 1, 0, 0, 0, 0,1]]
+    [97, [0, 1, 1, 0, 0, 0, 0,1]],
+    [255, [1, 1, 1, 1, 1, 1, 1,1]]
   ].forEach(([num, expected]) => {
     it(`converts ${num}`, () => {
         assert.deepEqual(toBits(num), expected);
